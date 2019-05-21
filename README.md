@@ -8,6 +8,7 @@ Implementation of Jacobi with Python and MPI
 * numpy
 * math
 * mpi4py
+* matplotlib
 
 Need MPI installation for mpi4py
 
