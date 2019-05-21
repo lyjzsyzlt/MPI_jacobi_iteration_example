@@ -1,0 +1,65 @@
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+import pymp
+
+import time
+start = time.time()
+
+'''
+ex_array = pymp.shared.array((1000000,), dtype='uint8')
+with pymp.Parallel(4) as p:
+    for index in p.range(0, 1000000):
+        ex_array[index] = 1
+        # The parallel print function takes care of asynchronous output.
+        p.print('Yay! {} done! process'.format(index))
+'''
+# NxN matrix
+MAX_N = 40
+
+# Matrix for jacobi calculation input and output
+A = np.zeros((MAX_N-2, MAX_N-2))
+A = np.pad(A, pad_width=1, mode='constant', constant_values=1)
+
+# Matrix for jacobi calculation output temp
+(row_num, col_num) = A.shape
+B = pymp.shared.array((row_num, col_num))
+
+# Do jacobi
+converge = False
+iteration_num = 0
+while (converge == False):
+    iteration_num = iteration_num+1
+    diffnorm = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+    # for convinience, use padding border
+    A_padding = np.pad(A, pad_width=1, mode='constant', constant_values=0)
+
+    with pymp.Parallel(8) as p:
+        for i in p.range(0, row_num):
+            for j in range(col_num):
+                # because we do padding, index changed
+                idx_i_A = i + 1
+                idx_j_A = j + 1
+                # Do jacobi
+                B[i][j] = 0.25*(A_padding[idx_i_A+1, idx_j_A]
+                                + A_padding[idx_i_A-1, idx_j_A]
+                                + A_padding[idx_i_A, idx_j_A+1]
+                                + A_padding[idx_i_A, idx_j_A-1])
+                # simple converge test
+                diffnorm[p.thread_num] += math.sqrt((B[i, j] - A[i, j])*(B[i, j] - A[i, j]))
+    A = np.copy(B)
+    
+    # check converge
+    if sum(diffnorm) <= 0.0001:
+        print('Converge, iteration : %d' % iteration_num)
+        print('Error : %f' % sum(diffnorm))
+        converge = True
+
+end = time.time()
+print('execution time : ')
+print(end - start)
+
+# Show
+plt.imshow(A, cmap='gray', interpolation='nearest')
+plt.show()

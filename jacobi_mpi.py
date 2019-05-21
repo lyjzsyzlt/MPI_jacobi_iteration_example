@@ -5,10 +5,13 @@ import matplotlib.pyplot as plt
 # import MPI
 from mpi4py import MPI
 
+import time
+start = time.time()
+
 # for MPI for python, Initialization and Deinitialization of MPI will be done automatically
 
 # NxN matrix
-MAX_N = 20
+MAX_N = 40
 
 # Matrix for jacobi calculation input and output
 A = np.zeros((MAX_N-2, MAX_N-2))
@@ -87,7 +90,9 @@ while (converge == False):
 comm.Gatherv(A_local, [A, MPI.DOUBLE], root=0)
 
 if rank == 0:
+    end = time.time()
+    print('execution time : ')
+    print(end - start)
     plt.imshow(A, cmap='gray', interpolation='nearest')
     plt.show()
-
 

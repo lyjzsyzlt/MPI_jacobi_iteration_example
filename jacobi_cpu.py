@@ -2,8 +2,11 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
+import time
+start = time.time()
+
 # NxN matrix
-MAX_N = 20
+MAX_N = 40
 
 # Matrix for jacobi calculation input and output
 A = np.zeros((MAX_N-2, MAX_N-2))
@@ -38,11 +41,14 @@ while (converge == False):
     A = np.copy(B)
     
     # check converge
-    print('Error : %f' % diffnorm)
     if diffnorm <= 0.0001:
         print('Converge, iteration : %d' % iteration_num)
         print('Error : %f' % diffnorm)
         converge = True
+
+end = time.time()
+print('execution time : ')
+print(end - start)
 
 # Show
 plt.imshow(A, cmap='gray', interpolation='nearest')
