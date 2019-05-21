@@ -1,11 +1,13 @@
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
-# 12x12 matrix
+# NxN matrix
 MAX_N = 20
 
 # Matrix for jacobi calculation input and output
-A = np.random.rand(MAX_N, MAX_N)
+A = np.zeros((MAX_N-2, MAX_N-2))
+A = np.pad(A, pad_width=1, mode='constant', constant_values=1)
 
 # Matrix for jacobi calculation output temp
 (row_num, col_num) = A.shape
@@ -41,3 +43,7 @@ while (converge == False):
         print('Converge, iteration : %d' % iteration_num)
         print('Error : %f' % diffnorm)
         converge = True
+
+# Show
+plt.imshow(A, cmap='gray', interpolation='nearest')
+plt.show()

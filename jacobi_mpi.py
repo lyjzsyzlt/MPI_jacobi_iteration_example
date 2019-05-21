@@ -1,16 +1,18 @@
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 # import MPI
 from mpi4py import MPI
 
 # for MPI for python, Initialization and Deinitialization of MPI will be done automatically
 
-# N x N matrix
+# NxN matrix
 MAX_N = 20
 
 # Matrix for jacobi calculation input and output
-A = np.random.rand(MAX_N, MAX_N)
+A = np.zeros((MAX_N-2, MAX_N-2))
+A = np.pad(A, pad_width=1, mode='constant', constant_values=1)
 
 # Matrix for jacobi calculation output temp
 (row_num, col_num) = A.shape
@@ -80,5 +82,12 @@ while (converge == False):
         print('Converge, iteration : %d per process' % iteration_num)
         print('Error : %f' % diffnorm_glov)
         converge = True
+
+# Gather to root process and show
+comm.Gatherv(A_local, [A, MPI.DOUBLE], root=0)
+
+if rank == 0:
+    plt.imshow(A, cmap='gray', interpolation='nearest')
+    plt.show()
 
 
